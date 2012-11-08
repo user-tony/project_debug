@@ -1,0 +1,40 @@
+<script type="text/javascript" src="/ckeditor/ckeditor.js"></script>
+	<script src="/ckeditor/sample.js" type="text/javascript"></script>
+	<link href="/ckeditor/sample.css" rel="stylesheet" type="text/cssc" />
+<%= labelled_fields_for :issue, @issue do |f| %>
+<%= call_hook(:view_issues_form_details_top, { :issue => @issue, :form => f }) %>
+
+<% if @issue.safe_attribute? 'is_private' %>
+<p style="float:right; margin-right:1em;">
+  <%= f.check_box :is_private, :no_label => true %><label class="inline" for="issue_is_private" id="issue_is_private_label"><%= l(:field_is_private) %></label>
+</p>
+<% end %>
+
+<% if @issue.safe_attribute? 'project_id' %>
+<p><%= f.select :project_id, project_tree_options_for_select(@issue.allowed_target_projects, :selected => @issue.project), {:required => true},
+                :onchange => "updateIssueFrom('#{escape_javascript project_issue_form_path(@project, :id => @issue, :format => 'js')}')" %></p>
+<% end %>
+
+<% if @issue.safe_attribute? 'tracker_id' %>
+<p><%= f.select :tracker_id, @issue.project.trackers.collect {|t| [t.name, t.id]}, {:required => true},
+                :onchange => "updateIssueFrom('#{escape_javascript project_issue_form_path(@project, :id => @issue, :format => 'js')}')" %></p>
+<% end %>
+
+<% if @issue.safe_attribute? 'subject' %>
+<p><%= f.text_field :subject, :size => 80, :required => true %></p>
+<% end %>
+
+<% if @issue.safe_attribute? 'description' %>
+<p>
+  <%= f.label_for_field :description, :required => @issue.required_attribute?('description') %>
+  <%= f.text_area :description, class: :ckeditor, name: "issue[description]"%>
+</p>
+<%= wikitoolbar_for 'issue_description' %>
+<% end %>
+
+<div id="attributes" class="attributes">
+  <%= render :partial => 'issues/attributes' %>
+</div>
+
+<%= call_hook(:view_issues_form_details_bottom, { :issue => @issue, :form => f }) %>
+<% end %>
